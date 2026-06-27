@@ -2,7 +2,6 @@
 session_start();
 include('../component/connectdatabase.php');
 
-// ตรวจสอบสิทธิ์ Factory
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'factory') {
     header("Location: ../login.php");
     exit();
@@ -18,7 +17,6 @@ if ($userRole === 'admin') {
     $allowed_status = [];
 }
 
-// ✅ แก้ไขออเดอร์ (อัปเดตเฉพาะสถานะ)
 if(isset($_POST['update_order'])){
     $id = intval($_POST['orde_id']);
     $status = $_POST['orde_status'];
@@ -33,15 +31,15 @@ if(isset($_POST['update_order'])){
 }
 
 $sql = "
-    SELECT o.*, 
-           u.username, 
-           u.first_name, 
-           u.last_name, 
-           u.email, 
-           u.phone, 
+    SELECT o.*,
+           u.username,
+           u.first_name,
+           u.last_name,
+           u.email,
+           u.phone,
            u.address
     FROM orders o
-    JOIN users u ON o.user_id = u.id 
+    JOIN users u ON o.user_id = u.id
     ORDER BY o.id DESC
 ";
 $stmt = $conn->prepare($sql);
@@ -66,7 +64,6 @@ $status_text = [
 </head>
 <body>
 <div class="d-flex">
-    <!-- Sidebar -->
     <div class="d-flex flex-column p-3 bg-dark text-white" style="width: 250px; height:auto; min-height:100vh;">
         <h4 class="text-center mb-4">Dashboard</h4>
         <ul class="nav nav-pills flex-column mb-auto">
@@ -78,11 +75,9 @@ $status_text = [
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container-fluid p-4" style="margin-left:20px;">
         <h3 class="mb-3">จัดการคิวผลิต/จัดส่งสินค้า (สำหรับพนักงานโรงงาน)</h3>
 
-        <!-- ตารางรายการออเดอร์ -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -119,7 +114,6 @@ $status_text = [
             </tbody>
         </table>
 
-        <!-- Modal -->
         <?php foreach($orders as $row): ?>
         <div class="modal fade" id="editModal<?= $row['id'] ?>" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-xl">
@@ -143,11 +137,10 @@ $status_text = [
                 </div>
                 <hr>
 
-                <!-- ข้อมูลสินค้า -->
                 <h6 class="fw-bold">สินค้าที่ต้องจัดเตรียมและผลิต</h6>
                 <?php
                 $order_id = $row['id'];
-                $sqlItems = "SELECT i.price, i.quantity, p.name, p.image 
+                $sqlItems = "SELECT i.price, i.quantity, p.name, p.image
                              FROM order_items i
                              JOIN products p ON i.product_id = p.id
                              WHERE i.order_id = :oid";
@@ -179,7 +172,6 @@ $status_text = [
                 </table>
                 <hr>
 
-                <!-- ฟอร์มเปลี่ยนสถานะ -->
                 <form method="post">
                   <input type="hidden" name="orde_id" value="<?= $row['id'] ?>">
                   <div class="mb-3">

@@ -2,13 +2,11 @@
 session_start();
 include('../component/connectdatabase.php');
 
-// ✅ ตรวจสอบสิทธิ์ admin โดยใช้ session ที่ตั้งค่าจาก User class
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     header("Location: ../login.php");
     exit();
 }
 
-// ✅ ลบผู้ใช้
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     $stmt = $conn->prepare("DELETE FROM users WHERE id = :id");
@@ -17,10 +15,9 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// ✅ เพิ่มผู้ใช้
 if (isset($_POST['add_user'])) {
     $username = $_POST['user_username'];
-    $password = password_hash($_POST['user_password'], PASSWORD_DEFAULT); // เข้ารหัสรหัสผ่าน!
+    $password = password_hash($_POST['user_password'], PASSWORD_DEFAULT);
     $fname    = $_POST['user_fname'];
     $lname    = $_POST['user_lname'];
     $email    = $_POST['user_email'];
@@ -28,7 +25,7 @@ if (isset($_POST['add_user'])) {
     $address  = $_POST['user_address'];
     $role     = $_POST['user_rules'];
 
-    $sql = "INSERT INTO users (username, password, first_name, last_name, email, phone, address, role) 
+    $sql = "INSERT INTO users (username, password, first_name, last_name, email, phone, address, role)
             VALUES (:un, :pw, :fn, :ln, :em, :ph, :ad, :rl)";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
@@ -39,7 +36,6 @@ if (isset($_POST['add_user'])) {
     exit();
 }
 
-// ✅ แก้ไขผู้ใช้
 if (isset($_POST['edit_user'])) {
     $id       = intval($_POST['user_id']);
     $fname    = $_POST['user_fname'];
@@ -49,7 +45,7 @@ if (isset($_POST['edit_user'])) {
     $address  = $_POST['user_address'];
     $role     = $_POST['user_rules'];
 
-    $sql = "UPDATE users SET 
+    $sql = "UPDATE users SET
                 first_name = :fn,
                 last_name = :ln,
                 email = :em,
@@ -59,18 +55,17 @@ if (isset($_POST['edit_user'])) {
             WHERE id = :id";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
-        'fn' => $fname, 'ln' => $lname, 'em' => $email, 
+        'fn' => $fname, 'ln' => $lname, 'em' => $email,
         'ph' => $tel, 'ad' => $address, 'rl' => $role, 'id' => $id
     ]);
     header("Location: user.php");
     exit();
 }
 
-// ✅ ค้นหา
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$sql = "SELECT * FROM users 
-        WHERE username LIKE :search 
-        OR first_name LIKE :search 
+$sql = "SELECT * FROM users
+        WHERE username LIKE :search
+        OR first_name LIKE :search
         OR last_name LIKE :search";
 $stmt = $conn->prepare($sql);
 $stmt->execute(['search' => "%$search%"]);
@@ -87,7 +82,6 @@ $userRole = $_SESSION['user_role'];
 </head>
 <body>
 <div class="d-flex">
-    <!-- Sidebar -->
     <div class="d-flex flex-column p-3 bg-dark text-white" style="width: 250px; height:100vh;">
         <h4 class="text-center mb-4">Dashboard</h4>
         <ul class="nav nav-pills flex-column mb-auto">
@@ -105,20 +99,16 @@ $userRole = $_SESSION['user_role'];
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container-fluid p-4" style="margin-left:20px;">
         <h3 class="mb-3">จัดการข้อมูลผู้ใช้</h3>
 
-        <!-- ฟอร์มค้นหา -->
         <form class="d-flex mb-3" method="get">
             <input type="text" class="form-control me-2" name="search" placeholder="ค้นหา Username / ชื่อ / นามสกุล" value="<?= htmlspecialchars($search) ?>">
             <button class="btn btn-primary">ค้นหา</button>
         </form>
 
-        <!-- ปุ่มเปิดฟอร์มเพิ่ม -->
         <button class="btn btn-success mb-3" data-bs-toggle="collapse" data-bs-target="#addForm">+ เพิ่มผู้ใช้</button>
 
-        <!-- ฟอร์มเพิ่ม -->
         <div id="addForm" class="collapse mb-4">
             <div class="card card-body">
                 <form method="post">
@@ -148,7 +138,6 @@ $userRole = $_SESSION['user_role'];
             </div>
         </div>
 
-        <!-- ตารางผู้ใช้ -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -213,7 +202,6 @@ $userRole = $_SESSION['user_role'];
     </div>
 </div>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

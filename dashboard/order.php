@@ -2,30 +2,27 @@
 session_start();
 include('../component/connectdatabase.php');
 
-// ตรวจสอบสิทธิ์ admin
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     header("Location: ../login.php");
     exit();
 }
 
-// ลบออเดอร์
 if(isset($_GET['delete_id'])){
     $delete_id = intval($_GET['delete_id']);
-    
-    // เริ่ม transaction ลบรายการสินค้าในออเดอร์ด้วย
+
     $conn->beginTransaction();
     try {
         $stmt_items = $conn->prepare("DELETE FROM order_items WHERE order_id = :id");
         $stmt_items->execute(['id' => $delete_id]);
-        
+
         $stmt_order = $conn->prepare("DELETE FROM orders WHERE id = :id");
         $stmt_order->execute(['id' => $delete_id]);
-        
+
         $conn->commit();
     } catch(Exception $e) {
         $conn->rollBack();
     }
-    
+
     header("Location: order.php");
     exit();
 }
@@ -40,7 +37,6 @@ if ($userRole === 'admin') {
     $allowed_status = [];
 }
 
-// ✅ แก้ไขออเดอร์ (อัปเดตเฉพาะสถานะ)
 if(isset($_POST['update_order'])){
     $id = intval($_POST['orde_id']);
     $status = $_POST['orde_status'];
@@ -54,17 +50,16 @@ if(isset($_POST['update_order'])){
     exit();
 }
 
-// ดึงข้อมูลออเดอร์ + ผู้ใช้
 $sql = "
-    SELECT o.*, 
-           u.username, 
-           u.first_name, 
-           u.last_name, 
-           u.email, 
-           u.phone, 
+    SELECT o.*,
+           u.username,
+           u.first_name,
+           u.last_name,
+           u.email,
+           u.phone,
            u.address
     FROM orders o
-    JOIN users u ON o.user_id = u.id 
+    JOIN users u ON o.user_id = u.id
     ORDER BY o.id DESC
 ";
 $stmt = $conn->prepare($sql);
@@ -89,7 +84,6 @@ $status_text = [
 </head>
 <body>
 <div class="d-flex">
-    <!-- Sidebar -->
     <div class="d-flex flex-column p-3 bg-dark text-white" style="width: 250px; height:auto; min-height:100vh;">
         <h4 class="text-center mb-4">Dashboard</h4>
         <ul class="nav nav-pills flex-column mb-auto">
@@ -107,11 +101,9 @@ $status_text = [
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container-fluid p-4" style="margin-left:20px;">
         <h3 class="mb-3">จัดการข้อมูลออเดอร์</h3>
 
-        <!-- ตารางรายการออเดอร์ -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -149,7 +141,6 @@ $status_text = [
             </tbody>
         </table>
 
-        <!-- Modal -->
         <?php foreach($orders as $row): ?>
         <div class="modal fade" id="editModal<?= $row['id'] ?>" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-xl">
@@ -159,7 +150,6 @@ $status_text = [
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
-                <!-- ข้อมูลผู้ใช้ และ ข้อมูลการโอนเงิน -->
                 <div class="row">
                   <div class="col-md-6">
                     <h6 class="fw-bold">ข้อมูลผู้ใช้</h6>
@@ -187,11 +177,10 @@ $status_text = [
                 </div>
                 <hr>
 
-                <!-- ข้อมูลสินค้า -->
                 <h6 class="fw-bold">รายการสินค้า</h6>
                 <?php
                 $order_id = $row['id'];
-                $sqlItems = "SELECT i.price, i.quantity, p.name, p.image 
+                $sqlItems = "SELECT i.price, i.quantity, p.name, p.image
                              FROM order_items i
                              JOIN products p ON i.product_id = p.id
                              WHERE i.order_id = :oid";
@@ -210,7 +199,7 @@ $status_text = [
                     </tr>
                   </thead>
                   <tbody>
-                    <?php 
+                    <?php
                     $total = 0;
                     foreach($items as $item):
                       $sum = $item['price'] * $item['quantity'];
@@ -236,7 +225,6 @@ $status_text = [
                 </table>
                 <hr>
 
-                <!-- ฟอร์มเปลี่ยนสถานะ -->
                 <form method="post">
                   <input type="hidden" name="orde_id" value="<?= $row['id'] ?>">
                   <div class="mb-3">
@@ -264,7 +252,6 @@ $status_text = [
     </div>
 </div>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

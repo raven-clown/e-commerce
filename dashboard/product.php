@@ -2,13 +2,11 @@
 session_start();
 include('../component/connectdatabase.php');
 
-// ✅ ตรวจสอบสิทธิ์ admin
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     header("Location: ../login.php");
     exit();
 }
 
-// ✅ ลบสินค้า
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     $stmt = $conn->prepare("DELETE FROM products WHERE id = :id");
@@ -17,21 +15,19 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// ✅ เพิ่มสินค้า
 if (isset($_POST['add_product'])) {
     $name     = $_POST['prod_name'];
     $details  = $_POST['prod_details'];
     $price    = intval($_POST['prod_price']);
     $max      = intval($_POST['prod_max']);
 
-    // อัปโหลดรูป
     $img = "";
     if (!empty($_FILES['prod_img']['name'])) {
         $ext = pathinfo($_FILES['prod_img']['name'], PATHINFO_EXTENSION);
         $img = "prod_" . time() . "_" . uniqid() . "." . $ext;
-        move_uploaded_file($_FILES['prod_img']['tmp_name'], "../assets/image/product/" . $img); 
+        move_uploaded_file($_FILES['prod_img']['tmp_name'], "../assets/image/product/" . $img);
     } else {
-        $img = "default.png"; // Fallback image if any
+        $img = "default.png";
     }
 
     $sql = "INSERT INTO products (name, description, price, stock, image)
@@ -44,7 +40,6 @@ if (isset($_POST['add_product'])) {
     exit();
 }
 
-// ✅ แก้ไขสินค้า
 if (isset($_POST['edit_product'])) {
     $id       = intval($_POST['prod_id']);
     $name     = $_POST['prod_name'];
@@ -52,13 +47,12 @@ if (isset($_POST['edit_product'])) {
     $price    = intval($_POST['prod_price']);
     $max      = intval($_POST['prod_max']);
 
-    // สร้าง query พื้นฐาน
-    $sql = "UPDATE products SET 
+    $sql = "UPDATE products SET
                 name = :name,
                 description = :desc,
                 price = :price,
                 stock = :stock";
-    
+
     $params = [
         'name' => $name, 'desc' => $details, 'price' => $price, 'stock' => $max, 'id' => $id
     ];
@@ -67,7 +61,7 @@ if (isset($_POST['edit_product'])) {
         $ext = pathinfo($_FILES['prod_img']['name'], PATHINFO_EXTENSION);
         $img = "prod_" . time() . "_" . uniqid() . "." . $ext;
         move_uploaded_file($_FILES['prod_img']['tmp_name'], "../assets/image/product/" . $img);
-        
+
         $sql .= ", image = :img";
         $params['img'] = $img;
     }
@@ -80,10 +74,9 @@ if (isset($_POST['edit_product'])) {
     exit();
 }
 
-// ✅ ค้นหา
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$sql = "SELECT * FROM products 
-        WHERE name LIKE :search 
+$sql = "SELECT * FROM products
+        WHERE name LIKE :search
         OR description LIKE :search
         ORDER BY id DESC";
 $stmt = $conn->prepare($sql);
@@ -101,7 +94,6 @@ $userRole = $_SESSION['user_role'];
 </head>
 <body>
 <div class="d-flex">
-    <!-- Sidebar -->
     <div class="d-flex flex-column p-3 bg-dark text-white" style="width: 250px; height:100vh;">
         <h4 class="text-center mb-4">Dashboard</h4>
         <ul class="nav nav-pills flex-column mb-auto">
@@ -117,20 +109,16 @@ $userRole = $_SESSION['user_role'];
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container-fluid p-4" style="margin-left:20px;">
         <h3 class="mb-3">จัดการสินค้า</h3>
 
-        <!-- ฟอร์มค้นหา -->
         <form class="d-flex mb-3" method="get">
             <input type="text" class="form-control me-2" name="search" placeholder="ค้นหาสินค้า" value="<?= htmlspecialchars($search) ?>">
             <button class="btn btn-primary">ค้นหา</button>
         </form>
 
-        <!-- ปุ่มเปิดฟอร์มเพิ่ม -->
         <button class="btn btn-success mb-3" data-bs-toggle="collapse" data-bs-target="#addForm">+ เพิ่มสินค้า</button>
 
-        <!-- ฟอร์มเพิ่มสินค้า -->
         <div id="addForm" class="collapse mb-4">
             <div class="card card-body">
                 <form method="post" enctype="multipart/form-data">
@@ -154,7 +142,6 @@ $userRole = $_SESSION['user_role'];
             </div>
         </div>
 
-        <!-- ตารางสินค้า -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -210,7 +197,6 @@ $userRole = $_SESSION['user_role'];
     </div>
 </div>
 
-<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

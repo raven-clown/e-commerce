@@ -71,7 +71,7 @@ $orders = $order_obj->getUserOrders($user_id);
               <?php foreach ($order['items'] as $item): ?>
                 <tr>
                   <td class="d-flex align-items-center">
-                    <img src="assets/image/product/<?= htmlspecialchars($item['image']) ?>" 
+                    <img src="assets/image/product/<?= htmlspecialchars($item['image']) ?>"
                           width="80" height="80" class="rounded border me-3" style="object-fit: contain;">
                     <?= htmlspecialchars($item['name']) ?>
                   </td>
@@ -108,11 +108,11 @@ $orders = $order_obj->getUserOrders($user_id);
             <div class="row mb-2">
               <div class="col-md-6">
                 <label class="form-label">ชื่อ</label>
-                <input type="text" class="form-control" name="user_fname" value="<?= htmlspecialchars($user_info['firstname']) ?>" required>
+                <input type="text" class="form-control" name="user_fname" value="<?= htmlspecialchars($user_info['first_name']) ?>" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label">นามสกุล</label>
-                <input type="text" class="form-control" name="user_lname" value="<?= htmlspecialchars($user_info['lastname']) ?>" required>
+                <input type="text" class="form-control" name="user_lname" value="<?= htmlspecialchars($user_info['last_name']) ?>" required>
               </div>
             </div>
             <div class="mb-2">
@@ -128,13 +128,11 @@ $orders = $order_obj->getUserOrders($user_id);
               <textarea class="form-control" name="user_address" rows="2" required><?= htmlspecialchars($user_info['address']) ?></textarea>
             </div>
 
-            <!-- รายการสินค้า -->
             <h6 class="mt-4 mb-2 fw-bold text-secondary">ออเดอร์สรุปยอด</h6>
             <div class="alert alert-secondary text-center fs-5">
               <b>ยอดเงินที่ต้องชำระ: ฿<?= number_format($order['total_amount'], 2) ?></b>
             </div>
 
-            <!-- QR + ข้อมูลบัญชี (ตัวอย่าง สมมติ) -->
             <div class="text-center mb-4 p-3 border rounded bg-light">
               <h5 class="fw-bold mb-3 text-primary">สแกนเพื่อชำระเงิน</h5>
               <img src="silppay.jpg" alt="QR ชำระเงิน" class="img-fluid rounded border mb-3" style="max-height:200px; obj-fit:contain;">
@@ -143,7 +141,6 @@ $orders = $order_obj->getUserOrders($user_id);
               <p class="mb-0"><b>ชื่อบัญชี:</b> สุรศักดิ์ จำนงค์ภักดิ์</p>
             </div>
 
-            <!-- ข้อมูลการโอน -->
             <div class="mb-3">
               <label class="form-label fw-bold">อัปโหลดหลักฐานการโอน <span class="text-danger">*</span></label>
               <input type="file" class="form-control slipInput" name="orde_slip" accept="image/jpeg, image/png, image/jpg" required>
@@ -166,7 +163,6 @@ $orders = $order_obj->getUserOrders($user_id);
                 </select>
               </div>
               <div class="col-md-6">
-                <!-- <label class="form-label">จำนวนเงิน</label> -->
                 <input type="hidden" name="amount" value="<?= $order['total_amount'] ?>">
               </div>
             </div>
@@ -190,10 +186,8 @@ $orders = $order_obj->getUserOrders($user_id);
   </div>
 
 <?php else: ?>
-  <!-- ปุ่มดูรายละเอียด -->
   <button class="btn btn-secondary mt-3 fw-bold" data-bs-toggle="modal" data-bs-target="#detailModal<?= $order['id'] ?>">ดูรายละเอียด</button>
 
-  <!-- Modal แสดงรายละเอียด -->
   <div class="modal fade" id="detailModal<?= $order['id'] ?>" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -206,7 +200,7 @@ $orders = $order_obj->getUserOrders($user_id);
             $user_info = $user_obj->getById($user_id);
           ?>
           <h6 class="fw-bold">ข้อมูลผู้ใช้และที่อยู่จัดส่ง</h6>
-          <p class="mb-1"><b>ชื่อ:</b> <?= htmlspecialchars($user_info['firstname']." ".$user_info['lastname']) ?></p>
+          <p class="mb-1"><b>Name:</b> <?= htmlspecialchars($user_info['first_name']." ".$user_info['last_name']) ?></p>
           <p class="mb-1"><b>โทร:</b> <?= htmlspecialchars($user_info['phone']) ?></p>
           <p class="mb-3"><b>ที่อยู่รันคำสั่งซื้อ:</b> <br><span class="text-muted"><?= nl2br(htmlspecialchars($user_info['address'])) ?></span></p>
 
@@ -223,7 +217,7 @@ $orders = $order_obj->getUserOrders($user_id);
               <?php foreach ($order['items'] as $item): ?>
               <tr>
                 <td class="d-flex align-items-center">
-                  <img src="assets/image/product/<?= htmlspecialchars($item['image']) ?>" 
+                  <img src="assets/image/product/<?= htmlspecialchars($item['image']) ?>"
                        width="60" height="60" class="rounded border me-2" style="object-fit: contain;">
                   <?= htmlspecialchars($item['name']) ?>
                 </td>
@@ -240,7 +234,7 @@ $orders = $order_obj->getUserOrders($user_id);
           <?php if(!empty($order['slip_image'])): ?>
             <h6 class="fw-bold mt-4 border-bottom pb-2">รายละเอียดสลิปโอนเงิน</h6>
             <div class="text-center mb-3 p-3 bg-light rounded">
-              <img src="assets/image/slip/<?= htmlspecialchars($order['slip_image']) ?>" 
+              <img src="assets/image/slip/<?= htmlspecialchars($order['slip_image']) ?>"
                    class="img-fluid rounded border shadow-sm mb-3" style="max-height:300px;">
               <p class="mb-1"><b>ธนาคาร:</b> <?= htmlspecialchars($order['bank_name']) ?></p>
               <p class="mb-1"><b>วันที่โอน:</b> <?= htmlspecialchars($order['transfer_date']) ?></p>
@@ -268,7 +262,6 @@ $orders = $order_obj->getUserOrders($user_id);
   <?php endif; ?>
 </div>
 
-<!-- Script preview รูปสลิป -->
 <script>
 document.addEventListener('change', function(e){
   if(e.target.classList.contains('slipInput')){
@@ -288,6 +281,20 @@ document.addEventListener('change', function(e){
   }
 });
 </script>
+<?php if (isset($_GET['placed']) && $_GET['placed'] == 1): ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Order placed',
+    text: 'Your order was created. Please upload payment proof when ready.',
+    confirmButtonText: 'OK'
+}).then(() => {
+    window.location.href = window.location.pathname;
+});
+</script>
+<?php endif; ?>
+
 <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -297,8 +304,7 @@ Swal.fire({
     text: 'ระบบได้รับข้อมูลการชำระเงินของคุณเรียบร้อยแล้ว กรุณารอการตรวจสอบสักครู่',
     confirmButtonText: 'ตกลง'
 }).then(() => {
-    // รีเฟรชหน้าใหม่เพื่อล้าง ?success=1
-    window.location.href = window.location.pathname; 
+    window.location.href = window.location.pathname;
 });
 </script>
 <?php endif; ?>
@@ -312,7 +318,7 @@ Swal.fire({
     text: '<?= htmlspecialchars($_GET['error']) ?>',
     confirmButtonText: 'ตกลง'
 }).then(() => {
-    window.location.href = window.location.pathname; 
+    window.location.href = window.location.pathname;
 });
 </script>
 <?php endif; ?>

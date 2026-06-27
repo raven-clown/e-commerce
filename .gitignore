@@ -1,0 +1,7 @@
+config.php
+assets/image/product/*
+!assets/image/product/.gitkeep
+assets/image/slip/*
+!assets/image/slip/.gitkeep
+.DS_Store
+Thumbs.db

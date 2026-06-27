@@ -2,19 +2,16 @@
 session_start();
 include('./component/connectdatabase.php');
 
-// ตรวจสอบการล็อกอิน
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header('Location: login.php');
     exit;
 }
 
 $user_id = $_SESSION['user_id'];
 
-// จัดการ AJAX requests (ลบ และ อัปเดตจำนวน)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
 
-    // 1. ลบสินค้าออกจากตะกร้า
     if ($_POST['action'] === 'remove_item') {
         $cart_id = $_POST['cart_id'];
         if ($cart_obj->removeItem($user_id, $cart_id)) {
@@ -25,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // 2. อัปเดตจำนวนสินค้า
     if ($_POST['action'] === 'update_qty') {
         $cart_id = $_POST['cart_id'];
         $qty = (int)$_POST['qty'];
@@ -38,16 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($cart_obj->updateQty($user_id, $cart_id, $qty)) {
             echo json_encode(['status' => 'success', 'message' => 'อัปเดตจำนวนเรียบร้อย']);
         } else {
-            // กรณีจำนวนเกินสต๊อก หรือ อัปเดตไม่สำเร็จ
-            echo json_encode(['status' => 'error', 'message' => 'จำนวนสินค้าไม่เพียงพอ หรืออัปเดตล้มเหลว']);
+            echo json_encode(['status' => 'error', 'message' => 'Insufficient stock or update failed']);
         }
         exit;
     }
 }
 
-// ดึงข้อมูลสินค้าในตะกร้าจาก DB ล่าสุด
 $cart_items = $cart_obj->getByUser($user_id);
 $total_price = 0;
+$checkout_error = isset($_GET['error']) ? $_GET['error'] : '';
 ?>
 
 <!DOCTYPE html>
@@ -69,11 +64,14 @@ $total_price = 0;
     <?php include('./component/navbar.php'); ?>
 
     <div class="container py-5 mt-5">
-        <h2 class="fw-bold mb-4"><i class="fas fa-shopping-cart text-primary"></i> ตะกร้าสินค้าของคุณ</h2>
+        <h2 class="fw-bold mb-4"><i class="fas fa-shopping-cart text-primary"></i> Your cart</h2>
+
+        <?php if ($checkout_error): ?>
+            <div class="alert alert-danger"><?= htmlspecialchars($checkout_error) ?></div>
+        <?php endif; ?>
 
         <?php if (count($cart_items) > 0): ?>
             <div class="row">
-                <!-- ฝั่งซ้าย: รายการสินค้า -->
                 <div class="col-lg-8 mb-4">
                     <div class="card shadow-sm">
                         <div class="card-body">
@@ -89,7 +87,7 @@ $total_price = 0;
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php 
+                                        <?php
                                         foreach($cart_items as $row) {
                                             $subtotal = $row['price'] * $row['quantity'];
                                             $total_price += $subtotal;
@@ -127,7 +125,6 @@ $total_price = 0;
                     </div>
                 </div>
 
-                <!-- ฝั่งขวา: สรุปยอดและปุ่มสั่งซื้อ -->
                 <div class="col-lg-4">
                     <div class="card shadow-sm border-primary">
                         <div class="card-header bg-primary text-white fw-bold">
@@ -139,9 +136,12 @@ $total_price = 0;
                                 <span class="fw-bold" id="cart-total">฿<?= number_format($total_price); ?></span>
                             </div>
                             <hr>
-                            <a href="checkout.php" class="btn btn-success w-100 fw-bold py-2">
-                                <i class="fas fa-check-circle me-1"></i> ยืนยันคำสั่งซื้อ (ไปหน้าชำระเงิน)
-                            </a>
+                            <form method="post" action="checkout.php" class="w-100">
+                                <input type="hidden" name="confirm_checkout" value="1">
+                                <button type="submit" class="btn btn-success w-100 fw-bold py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Place order
+                                </button>
+                            </form>
                             <a href="index.php" class="btn btn-outline-secondary w-100 mt-2">
                                 เลือกซื้อสินค้าต่อ
                             </a>
@@ -160,9 +160,8 @@ $total_price = 0;
 
     <script>
     $(document).ready(function() {
-        
-        // --- ฟังก์ชันอัปเดตจำนวน ---
-        function updateQuantity(cartId, newQty, btnElement) {
+
+        function updateQuantity(cartId, newQty) {
             $.ajax({
                 url: 'cart.php',
                 type: 'POST',
@@ -174,10 +173,10 @@ $total_price = 0;
                 dataType: 'json',
                 success: function(response) {
                     if(response.status === 'success') {
-                        location.reload(); 
+                        location.reload();
                     } else {
                         Swal.fire('ข้อผิดพลาด', response.message, 'error');
-                        location.reload(); 
+                        location.reload();
                     }
                 },
                 error: function() {
@@ -186,7 +185,6 @@ $total_price = 0;
             });
         }
 
-        // กดปุ่ม +
         $('.btn-plus').click(function() {
             let input = $(this).siblings('.input-qty');
             let currentQty = parseInt(input.val());
@@ -195,14 +193,13 @@ $total_price = 0;
 
             if(currentQty < stock) {
                 let newQty = currentQty + 1;
-                input.val(newQty); 
-                updateQuantity(cartId, newQty, $(this));
+                input.val(newQty);
+                updateQuantity(cartId, newQty);
             } else {
                 Swal.fire('ข้อมูลสต๊อก', 'คุณไม่สามารถเพิ่มจำนวนเกินกว่าที่มีอยู่ในสต๊อกได้', 'info');
             }
         });
 
-        // กดปุ่ม -
         $('.btn-minus').click(function() {
             let input = $(this).siblings('.input-qty');
             let currentQty = parseInt(input.val());
@@ -211,13 +208,12 @@ $total_price = 0;
             if(currentQty > 1) {
                 let newQty = currentQty - 1;
                 input.val(newQty);
-                updateQuantity(cartId, newQty, $(this));
+                updateQuantity(cartId, newQty);
             } else {
                 promptDelete(cartId);
             }
         });
 
-        // --- ลบสินค้า ---
         function promptDelete(cartId) {
             Swal.fire({
                 title: 'ยืนยันการลบ?',

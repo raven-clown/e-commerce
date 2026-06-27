@@ -56,7 +56,6 @@ body {
 .btn-minimal:hover {
     background: #218353;
 }
-/* Remove button outline */
 .btn:focus {
     box-shadow: none !important;
 }

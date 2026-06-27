@@ -1,36 +1,26 @@
 <?php
 session_start();
-include("./component/connectdatabase.php");
+include('./component/connectdatabase.php');
 
-// ตรวจสอบการล็อกอิน
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ'); window.location='login.php';</script>";
-    exit();
+    header('Location: login.php');
+    exit;
 }
 
 $user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_checkout'])) {
-    
-    // ใช้งานคลาส Order เพื่อดำเนินการสั่งซื้อผ่าน Transaction สต๊อก ฯลฯ
-    $result = $order_obj->checkout($user_id);
+    $result = $order_obj->placeOrder($user_id, $cart_obj);
 
-    if ($result === "success") {
-        echo "<script>alert('สั่งซื้อสำเร็จ! รอการตรวจสอบและชำระเงินต่อไป'); window.location='order.php';</script>";
-        exit();
-    } elseif ($result === "empty_cart") {
-        echo "<script>alert('ไม่มีสินค้าในตะกร้า'); window.location='cart.php';</script>";
-        exit();
-    } elseif ($result === "user_not_found") {
-        echo "<script>alert('ไม่พบข้อมูลผู้ใช้'); window.location='login.php';</script>";
-        exit();
-    } else {
-        // อาจจะเป็น stock_error หรือข้อผิดพลาดอื่นๆ จาก Exception
-        echo "<script>alert('พบข้อผิดพลาด: " . htmlspecialchars($result) . "'); window.location='cart.php';</script>";
-        exit();
+    if (!empty($result['success'])) {
+        header('Location: order.php?placed=1');
+        exit;
     }
 
-} else {
-    header("Location: cart.php");
-    exit();
+    $message = urlencode($result['message'] ?? 'Checkout failed');
+    header('Location: cart.php?error=' . $message);
+    exit;
 }
+
+header('Location: cart.php');
+exit;

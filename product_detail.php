@@ -80,16 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="col-md-6 mb-4">
                 <img src="./assets/image/product/<?= htmlspecialchars($product['image']); ?>" alt="Product Image" class="product-image">
             </div>
-            
+
             <div class="col-md-6">
                 <h2 class="fw-bold mb-3"><?= htmlspecialchars($product['name']); ?></h2>
                 <h4 class="text-danger mb-4">ราคา <?= number_format($product['price']); ?> บาท</h4>
-                
+
                 <h5 class="fw-bold">รายละเอียดสินค้า</h5>
                 <p class="text-muted" style="white-space: pre-wrap;"><?= htmlspecialchars($product['description']); ?></p>
-                
+
                 <div class="mb-4">
-                    <span class="fw-bold">สถานะ:</span> 
+                    <span class="fw-bold">สถานะ:</span>
                     <?php if ($product['stock'] > 0): ?>
                         <span class="text-success"><i class="fas fa-check-circle"></i> มีสินค้า (เหลือ <?= $product['stock']; ?> ชิ้น)</span>
                     <?php else: ?>
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <script>
     $(document).ready(function() {
         const stock = <?= $product['stock']; ?>;
-        
+
         $('#btn-plus').click(function() {
             let qty = parseInt($('#quantity').val());
             if (qty < stock) {
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             showConfirmButton: false,
                             timer: 1500
                         }).then(() => {
-                            location.reload(); 
+                            location.reload();
                         });
                     } else if (response.message === 'not_logged_in') {
                         Swal.fire({

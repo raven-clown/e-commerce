@@ -1,22 +1,22 @@
 <?php
 session_start();
 session_unset();
-session_destroy(); // ลบ session ทั้งหมด
+session_destroy();
 ?>
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Logging out...</title>
-    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body style="font-family: 'Prompt', sans-serif;">
+<body>
 <script>
     Swal.fire({
-        title: 'ออกจากระบบสำเร็จ!',
-        text: 'คุณได้ออกจากระบบเรียบร้อยแล้ว',
+        title: 'Logged out',
+        text: 'You have been signed out successfully.',
         icon: 'success',
-        confirmButtonText: 'ตกลง'
+        confirmButtonText: 'OK'
     }).then(function() {
         window.location.href = 'index.php';
     });

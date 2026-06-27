@@ -10,12 +10,12 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $orde_id      = $_POST['orde_id'];
     $user_id      = $_SESSION['user_id'];
-    
+
     $user_fname   = $_POST['user_fname'];
     $user_lname   = $_POST['user_lname'];
     $user_tel     = $_POST['user_tel'];
     $user_address = $_POST['user_address'];
-    
+
     $bank_name    = $_POST['bank_name'];
     $transfer_date= $_POST['transfer_date'];
     $transfer_time= $_POST['transfer_time'];
